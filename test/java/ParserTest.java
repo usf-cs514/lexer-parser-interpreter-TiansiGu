@@ -9,10 +9,9 @@ public class ParserTest {
 
         for (String file : fileArray) {
             System.out.println(file);
-            Lexer lexer =new Lexer(file);
-//            Parser parser = new Parser(lexer);
+            Parser parser = new Parser(file);
             System.out.println("Parser Output: ");
-//            parser.parseProgram();
+            parser.parseProgram();
             System.out.println("-----------------------------------------------------------------------------------------");
 
         }
