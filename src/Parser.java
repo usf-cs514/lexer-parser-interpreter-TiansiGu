@@ -14,7 +14,7 @@ public class Parser {
 
     // Data Members
     private ArrayList<Token> tokenList; // the tokenList generated from “getAllTokens”
-    private IdTable table = new IdTable(); //an IdTable object of the arguments that we are parsing, see class IdTable
+    private IdTable idTable = new IdTable(); //an IdTable object of the arguments that we are parsing, see class IdTable
 
     private int index = 0; //index of Tokens when looping through the tokenList
 
@@ -42,7 +42,7 @@ public class Parser {
         while (index < tokenList.size() && this.valid) {
             parseAssignment();
         }
-        if (this.valid) {
+        if (this.valid && interpreter.getValid()) {
             System.out.println("Valid Program");
         } else {
             System.out.println("Invalid Program");
@@ -53,16 +53,16 @@ public class Parser {
      * Parse a single assignment, it calls parseId, parseAssignmentOp, and parseExpression in descending order
      * Generate bytecode of the assignment at the same time
      */
-    public void parseAssignment() {
+    private void parseAssignment() {
         if (!valid) return;
         Token idToken = parseId();
         if (!valid) return;
         parseAssignOp();
         if (!valid) return;
         parseExpression();
-        // Generate bytecode for storing value in Accumulator to the LHS's identifier
+        // Generate STORE bytecode, store value in Accumulator to the LHS's identifier
         if (valid) {
-            int idAddress = table.getAddress(idToken);
+            int idAddress = idTable.getAddress(idToken);
             interpreter.generate(ByteCodeInterpreter.STORE, idAddress);
         }
     }
@@ -76,8 +76,8 @@ public class Parser {
         Token token = nextToken();
         if (token.getType().equals(Lexer.IDTOKEN)) {
             //System.out.print("get an id");
-            if (table.getAddress(token) == -1) {
-                table.add(token);
+            if (idTable.getAddress(token) == -1) {
+                idTable.add(token);
             }
             //System.out.println(table.getAddress(token));
         }
@@ -108,7 +108,7 @@ public class Parser {
         Token t1 = nextToken();
         Token t2 = nextToken();
         while ((t1.getType().equals(Lexer.IDTOKEN) || t1.getType().equals(Lexer.INTTOKEN))){
-            if (t1.getType().equals(Lexer.IDTOKEN) && table.getAddress(t1) == -1) {
+            if (t1.getType().equals(Lexer.IDTOKEN) && idTable.getAddress(t1) == -1) {
                 valid = false;
                 System.out.println("Error: Identifier " + t1.getValue() + " not defined, line " + t1.getLineNumber());
                 return;
@@ -116,7 +116,7 @@ public class Parser {
 
             // generate bytecode using "generate" in Class ByteCodeInterpreter
             if (t1.getType().equals(Lexer.IDTOKEN)) {
-                int value = table.getAddress(t1);
+                int value = idTable.getAddress(t1);
                 interpreter.generate(ByteCodeInterpreter.LOAD, value);
             }
             if (t1.getType().equals(Lexer.INTTOKEN)) {
@@ -162,7 +162,9 @@ public class Parser {
      * @override print out the tokenList and id table
      */
     public String toString() {
-        return "Token List is: " + tokenList.toString();
+        String tokenListPrint = "Token List:" + tokenList.toString();
+        String idTablePrint = "Symbol Table:" + idTable.toString();
+        return tokenListPrint + "\n" + idTablePrint;
     }
 
     /**
@@ -171,15 +173,13 @@ public class Parser {
      * @param args
      */
     public static void main(String[] args) {
-        Parser parser = new Parser("test.txt");
+        Parser parser = new Parser("testOutOfBounds.txt");
         parser.parseProgram();
         //System.out.println(parser);
         if (parser.valid) {
             parser.interpreter.run();
-            if (parser.interpreter.getValid()) {
-                System.out.println(parser.table);
-                System.out.println(parser.interpreter);
-            }
+            System.out.println(parser);
+            System.out.println(parser.interpreter);
         }
     }
 

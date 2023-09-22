@@ -119,7 +119,6 @@ public class Lexer {
      * Return all the token in the file
      * @return ArrayList of Token
      */
-
     public ArrayList<Token> getAllTokens(){
         //TODO: place your code here for lexing file
         ArrayList<Token> tokenLst = new ArrayList<>();
@@ -140,6 +139,17 @@ public class Lexer {
         return tokenLst;
     }
 
+    /**
+     * toString method override which prints each token’s type and value
+     */
+    public String toString() {
+        ArrayList<Token> tokenList = getAllTokens();
+        String str = "";
+        for (Token token: tokenList) {
+            str += token.toString() + "\n";
+        }
+        return str;
+    }
 
 
     /**
