@@ -16,6 +16,11 @@ public class ParserTest {
             System.out.println("Parser Output: ");
             parser.parseProgram();
             //System.out.println(parser);
+            if (parser.isValid()) {
+                System.out.println(parser);
+                parser.getInterpreter().run();
+                System.out.println(parser.getInterpreter());
+            }
             System.out.println("-----------------------------------------------------------------------------------------");
 
         }

@@ -62,6 +62,9 @@ public class Parser {
         parseExpression();
         // Generate STORE bytecode, store value in Accumulator to the LHS's identifier
         if (valid) {
+            // add the id to the id table
+            idTable.add(idToken);
+            // generate bytecode of STORE
             int idAddress = idTable.getAddress(idToken);
             interpreter.generate(ByteCodeInterpreter.STORE, idAddress);
         }
@@ -74,14 +77,7 @@ public class Parser {
      */
     private Token parseId() {
         Token token = nextToken();
-        if (token.getType().equals(Lexer.IDTOKEN)) {
-            //System.out.print("get an id");
-            if (idTable.getAddress(token) == -1) {
-                idTable.add(token);
-            }
-            //System.out.println(table.getAddress(token));
-        }
-        else {
+        if (! token.getType().equals(Lexer.IDTOKEN)) {
             valid = false;
             System.out.println("Error: Expecting identifier, line " + token.getLineNumber());
         }
@@ -108,10 +104,13 @@ public class Parser {
         Token t1 = nextToken();
         Token t2 = nextToken();
         while ((t1.getType().equals(Lexer.IDTOKEN) || t1.getType().equals(Lexer.INTTOKEN))){
-            if (t1.getType().equals(Lexer.IDTOKEN) && idTable.getAddress(t1) == -1) {
-                valid = false;
-                System.out.println("Error: Identifier " + t1.getValue() + " not defined, line " + t1.getLineNumber());
-                return;
+            if (t1.getType().equals(Lexer.IDTOKEN)) {
+                int addressInIdTable = idTable.getAddress(t1);
+                if (addressInIdTable == -1) {
+                    valid = false;
+                    System.out.println("Error: Identifier " + t1.getValue() + " not defined, line " + t1.getLineNumber());
+                    return;
+                }
             }
 
             // generate bytecode using "generate" in Class ByteCodeInterpreter
@@ -168,17 +167,31 @@ public class Parser {
     }
 
     /**
+     * Allow access for "interpreter" from other classes
+     */
+    public ByteCodeInterpreter getInterpreter() {
+        return interpreter;
+    }
+
+    /**
+     * Allow access for "valid" from other classes
+     */
+    public boolean isValid() {
+        return valid;
+    }
+
+    /**
      * The Entry of the entire project.
      * We get tokens, parse them, generate bytecodes, and finally interpret the assignments
      * @param args
      */
     public static void main(String[] args) {
-        Parser parser = new Parser("testOutOfBounds.txt");
+        Parser parser = new Parser("test.txt");
         parser.parseProgram();
         //System.out.println(parser);
         if (parser.valid) {
-            parser.interpreter.run();
             System.out.println(parser);
+            parser.interpreter.run();
             System.out.println(parser.interpreter);
         }
     }

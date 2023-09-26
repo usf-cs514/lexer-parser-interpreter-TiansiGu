@@ -62,9 +62,9 @@ public class ByteCodeInterpreter {
             }
             idx += 2; //iterate in pairs
         }
-        for (int i = usedmemory; i < mmSize; i++) {
-            memory.add(0);
-        }
+//        for (int i = usedmemory; i < mmSize; i++) {
+//            memory.add(0);
+//        }
     }
 
     /**
@@ -108,6 +108,7 @@ public class ByteCodeInterpreter {
     public boolean getValid() {
         return isEnoughMemory;
     }
+
 
     /**
      * toString method overrides, @return bytecode and memory
